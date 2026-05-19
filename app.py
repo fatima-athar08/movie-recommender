@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 import requests
 import pandas as pd
- 
+
 # ── PAGE CONFIG ────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="CineMatch — AI Movie Recommender",
@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
- 
+
 # ── LOAD DATA ──────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
@@ -18,9 +18,9 @@ def load_data():
     sim        = pickle.load(open('similarity.pkl', 'rb'))
     df = movies_raw if isinstance(movies_raw, pd.DataFrame) else pd.DataFrame(movies_raw)
     return df, sim
- 
+
 movies, similarity = load_data()
- 
+
 # ── FETCH POSTER ───────────────────────────────────────────────────────────────
 def fetch_poster(movie_id):
     try:
@@ -33,7 +33,7 @@ def fetch_poster(movie_id):
     except Exception:
         pass
     return 'https://placehold.co/300x450/101015/e05c20?text=No+Poster'
- 
+
 # ── FETCH MOVIE DETAILS ────────────────────────────────────────────────────────
 def fetch_details(movie_id):
     try:
@@ -50,7 +50,7 @@ def fetch_details(movie_id):
     except Exception:
         return {'poster': 'https://placehold.co/300x450/101015/e05c20?text=No+Poster',
                 'rating': 'N/A', 'year': 'N/A', 'overview': '', 'genres': ''}
- 
+
 # ── RECOMMEND ──────────────────────────────────────────────────────────────────
 def recommend(movie):
     idx       = movies[movies['title'] == movie].index[0]
@@ -62,7 +62,7 @@ def recommend(movie):
         posters.append(fetch_poster(movies.iloc[i].movie_id))
         scores.append(round(score * 100, 1))
     return titles, posters, scores
- 
+
 # ── GET SIMILARITY SCORE ───────────────────────────────────────────────────────
 def get_similarity_score(movie1, movie2):
     try:
@@ -71,28 +71,30 @@ def get_similarity_score(movie1, movie2):
         return round(float(similarity[idx1][idx2]) * 100, 2)
     except:
         return 0.0
- 
+
 # ── CSS ────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500&display=swap');
- 
+
 html, body, [class*="css"] { font-family: 'Outfit', sans-serif !important; }
 .stApp { background: #09090e; color: #eeebe6; }
-.block-container { padding: 0 !important; max-width: 100% !important; }
+.block-container { padding: 1rem 0 0 0 !important; max-width: 100% !important; }
 [data-testid="stAppViewContainer"] { background: #09090e; }
 [data-testid="stHeader"] { display: none; }
 [data-testid="stToolbar"] { display: none; }
 [data-testid="stDecoration"] { display: none; }
 [data-testid="stStatusWidget"] { display: none; }
 .stMainBlockContainer { padding: 0 !important; max-width: 100% !important; }
+div[data-testid="stVerticalBlock"] { padding-left: 0 !important; padding-right: 0 !important; }
+.stTabs { padding: 0 !important; }
 section[data-testid="stSidebar"] { display: none; }
 #MainMenu { visibility: hidden; }
 footer { visibility: hidden; }
 header { visibility: hidden; }
 .stDeployButton { display: none; }
 div[data-testid="stVerticalBlock"] > div:first-child { padding: 0 !important; }
- 
+
 /* NAVBAR */
 .navbar {
     background: #0f0f14; border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -106,7 +108,7 @@ div[data-testid="stVerticalBlock"] > div:first-child { padding: 0 !important; }
     text-transform:uppercase; padding:3px 9px; border-radius:20px;
 }
 .nav-info { margin-left:auto; font-size:11px; color:rgba(255,255,255,0.28); letter-spacing:0.8px; }
- 
+
 /* TABS */
 .tab-bar {
     display:flex; gap:0; background:#0f0f14;
@@ -120,27 +122,28 @@ div[data-testid="stVerticalBlock"] > div:first-child { padding: 0 !important; }
 }
 .tab-btn:hover { color:rgba(255,255,255,0.7); }
 .tab-btn.active { color:#e05c20; border-bottom-color:#e05c20; font-weight:500; }
- 
+
 /* PAGE PADDING */
 .page { padding: 36px 44px 48px; }
 .main .block-container { padding-top: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
 div.stTabs [data-baseweb="tab-panel"] { padding: 0 !important; }
+div.stTabs [data-baseweb="tab-panel"] > div { padding: 0 !important; }
 div.stTabs [data-baseweb="tab-list"] { background: #0f0f14; padding: 0 44px; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
 div.stTabs [data-baseweb="tab"] { background: transparent; color: rgba(255,255,255,0.4); font-size: 13px; padding: 14px 22px; border: none; border-bottom: 2px solid transparent; }
 div.stTabs [aria-selected="true"] { background: transparent !important; color: #e05c20 !important; border-bottom: 2px solid #e05c20 !important; }
 div.stTabs [data-baseweb="tab"]:hover { color: rgba(255,255,255,0.7); background: transparent; }
 div.stTabs [data-baseweb="tab-highlight"] { background-color: #e05c20 !important; }
 div.stTabs [data-baseweb="tab-border"] { display: none; }
- 
+
 /* HERO */
 .big-title { font-family:'Bebas Neue',sans-serif; font-size:58px; line-height:1.0; letter-spacing:2px; color:#eeebe6; margin-bottom:12px; }
 .big-title em { color:#e05c20; font-style:normal; }
 .eyebrow { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:#e05c20; margin-bottom:10px; }
 .hero-desc { font-size:15px; font-weight:300; color:rgba(238,235,230,0.5); line-height:1.75; max-width:500px; margin-bottom:32px; }
- 
+
 /* DIVIDER */
 .ruled { height:1px; background:linear-gradient(90deg,rgba(224,92,32,0.45),rgba(255,255,255,0.04),transparent); margin:0; }
- 
+
 /* SELECTBOX */
 .stSelectbox > div > div {
     background:#13131a !important; border:1px solid rgba(255,255,255,0.09) !important;
@@ -148,7 +151,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 }
 .stSelectbox > div > div:hover { border-color:rgba(224,92,32,0.45) !important; }
 .stSelectbox svg { fill:#e05c20 !important; }
- 
+
 /* BUTTON */
 .stButton > button {
     background:#e05c20 !important; color:#fff !important; border:none !important;
@@ -159,7 +162,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 }
 .stButton > button:hover { background:#bf4c14 !important; transform:translateY(-2px) !important; }
 .stButton > button:active { transform:translateY(0) !important; }
- 
+
 /* MOVIE CARD */
 .mcard {
     background:#101015; border-radius:13px; overflow:hidden;
@@ -180,7 +183,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
     display:inline-block; background:rgba(224,92,32,0.15); border:1px solid rgba(224,92,32,0.3);
     color:#e05c20; font-size:10px; padding:2px 7px; border-radius:6px; margin-bottom:6px;
 }
- 
+
 /* WHY BOX */
 .why-wrap {
     margin:24px 0 8px; background:#101015; border:1px solid rgba(255,255,255,0.055);
@@ -189,7 +192,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .why-label { font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:#e05c20; margin-bottom:7px; }
 .why-body { font-size:13px; font-weight:300; color:rgba(238,235,230,0.65); line-height:1.85; }
 .why-body b { color:#eeebe6; font-weight:500; }
- 
+
 /* STAT CARDS */
 .stats-grid { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:32px; }
 .stat-card {
@@ -198,11 +201,11 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 }
 .stat-val { font-family:'Bebas Neue',sans-serif; font-size:30px; color:#e05c20; letter-spacing:1px; line-height:1; margin-bottom:5px; }
 .stat-lbl { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.3); }
- 
+
 /* SECTION LABEL */
 .sec-label { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:18px; }
 .sec-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px; color:#eeebe6; margin-bottom:6px; }
- 
+
 /* COMPARE CARD */
 .compare-card {
     background:#101015; border:1px solid rgba(255,255,255,0.055);
@@ -215,7 +218,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .compare-label { font-size:12px; color:rgba(255,255,255,0.4); letter-spacing:1px; text-transform:uppercase; }
 .score-bar-bg { background:rgba(255,255,255,0.07); border-radius:6px; height:8px; width:100%; margin:16px 0 8px; }
 .score-bar-fill { background:linear-gradient(90deg,#e05c20,#f5834d); border-radius:6px; height:8px; transition:width 0.5s ease; }
- 
+
 /* AI CHAT */
 .chat-bubble-user {
     background:rgba(224,92,32,0.12); border:1px solid rgba(224,92,32,0.2);
@@ -230,7 +233,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .chat-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; }
 .chat-label.user { color:#e05c20; text-align:right; }
 .chat-label.ai { color:rgba(255,255,255,0.3); }
- 
+
 /* PIPELINE STEPS */
 .pipeline-grid { display:flex; gap:12px; flex-wrap:wrap; }
 .pipe-step {
@@ -241,7 +244,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .pipe-title { font-size:13px; font-weight:500; color:#eeebe6; margin-bottom:5px; }
 .pipe-code { font-size:10px; color:#e05c20; font-family:monospace; background:rgba(224,92,32,0.08); padding:3px 7px; border-radius:4px; display:inline-block; margin-top:4px; }
 .pipe-desc { font-size:11px; color:rgba(255,255,255,0.35); line-height:1.6; margin-top:6px; }
- 
+
 /* HOW IT WORKS steps */
 .steps-grid { display:flex; gap:14px; flex-wrap:wrap; }
 .step-card {
@@ -251,7 +254,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .step-n { font-family:'Bebas Neue',sans-serif; font-size:36px; color:rgba(224,92,32,0.2); line-height:1; margin-bottom:9px; }
 .step-t { font-size:13px; font-weight:500; color:#eeebe6; margin-bottom:5px; }
 .step-d { font-size:11px; font-weight:300; color:rgba(255,255,255,0.36); line-height:1.7; }
- 
+
 /* TECH TABLE */
 .tech-row-item {
     display:flex; align-items:center; gap:12px;
@@ -269,7 +272,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .tag-data { background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:#fbbf24; }
 .tag-ai { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); color:#a78bfa; }
 .tag-deploy { background:rgba(236,72,153,0.15); border:1px solid rgba(236,72,153,0.3); color:#f472b6; }
- 
+
 /* TEXT INPUT */
 .stTextInput > div > div > input {
     background:#13131a !important; border:1px solid rgba(255,255,255,0.09) !important;
@@ -277,13 +280,13 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
     font-family:'Outfit',sans-serif !important;
 }
 .stTextInput > div > div > input:focus { border-color:rgba(224,92,32,0.45) !important; }
- 
+
 /* TEXT AREA */
 .stTextArea > div > div > textarea {
     background:#13131a !important; border:1px solid rgba(255,255,255,0.09) !important;
     border-radius:11px !important; color:#eeebe6 !important; font-family:'Outfit',sans-serif !important;
 }
- 
+
 /* FOOTER */
 .foot {
     border-top:1px solid rgba(255,255,255,0.055); padding:20px 44px;
@@ -295,7 +298,7 @@ div.stTabs [data-baseweb="tab-border"] { display: none; }
 .stSpinner > div { border-top-color:#e05c20 !important; }
 </style>
 """, unsafe_allow_html=True)
- 
+
 # ── NAVBAR ─────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="navbar">
@@ -304,31 +307,18 @@ st.markdown("""
     <div class="nav-info">TF-IDF &nbsp;·&nbsp; Cosine Similarity &nbsp;·&nbsp; TMDB 5000</div>
 </div>
 """, unsafe_allow_html=True)
- 
+
 # ── TABS ───────────────────────────────────────────────────────────────────────
-if 'active_tab' not in st.session_state:
-    st.session_state.active_tab = 'recommend'
- 
-st.markdown("""
-<div class="tab-bar">
-    <button class="tab-btn" id="tb-recommend">🎬 &nbsp;Recommend</button>
-    <button class="tab-btn" id="tb-ai">🤖 &nbsp;AI Chat</button>
-    <button class="tab-btn" id="tb-compare">⚖️ &nbsp;Compare Movies</button>
-    <button class="tab-btn" id="tb-dashboard">📊 &nbsp;Dashboard</button>
-    <button class="tab-btn" id="tb-model">🧠 &nbsp;How It Works</button>
-</div>
-""", unsafe_allow_html=True)
- 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "🎬 Recommend", "🤖 AI Chat", "⚖️ Compare Movies", "📊 Dashboard", "🧠 How It Works"
 ])
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 1 — RECOMMEND
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
-    st.markdown('<div class="page">', unsafe_allow_html=True)
- 
+    st.markdown('<div style="padding:36px 44px 48px;">', unsafe_allow_html=True)
+
     st.markdown("""
     <div class="eyebrow">✦ Machine Learning · Content-Based Filtering</div>
     <div class="big-title">FIND YOUR<br>NEXT <em>FAVOURITE</em><br>FILM.</div>
@@ -338,26 +328,26 @@ with tab1:
         themes, cast, genre, and directorial style.
     </div>
     """, unsafe_allow_html=True)
- 
+
     col_sel, col_btn, col_gap = st.columns([3, 1, 2])
     with col_sel:
         selected_movie = st.selectbox("movie", movies['title'].values, label_visibility="collapsed", key="rec_select")
     with col_btn:
         rec_clicked = st.button("RECOMMEND →", key="rec_btn")
- 
+
     if rec_clicked:
         with st.spinner("Finding your perfect films..."):
             names, posters, scores = recommend(selected_movie)
- 
+
         bar_widths = [98, 94, 90, 86, 82]
- 
+
         st.markdown(f"""
         <div style="padding:28px 0 16px; display:flex; align-items:baseline; gap:12px;">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#eeebe6;">TOP 5 RECOMMENDATIONS</div>
             <div style="font-size:12px;color:rgba(255,255,255,0.3);">based on "{selected_movie}"</div>
         </div>
         """, unsafe_allow_html=True)
- 
+
         cols = st.columns(5)
         for i, col in enumerate(cols):
             mid = movies[movies['title'] == names[i]]['movie_id'].values
@@ -382,7 +372,7 @@ with tab1:
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
- 
+
         st.markdown(f"""
         <div class="why-wrap">
             <div class="why-label">✦ Why these recommendations?</div>
@@ -395,14 +385,14 @@ with tab1:
             </div>
         </div>
         """, unsafe_allow_html=True)
- 
+
     st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 2 — AI CHAT
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    st.markdown('<div class="page">', unsafe_allow_html=True)
+    st.markdown('<div style="padding:36px 44px 48px;">', unsafe_allow_html=True)
     st.markdown("""
     <div class="sec-label">✦ Powered by Claude AI</div>
     <div class="sec-title">AI MOVIE ASSISTANT</div>
@@ -412,10 +402,10 @@ with tab2:
         Anthropic Claude API directly inside the app.
     </div>
     """, unsafe_allow_html=True)
- 
+
     if 'chat_history' not in st.session_state:
         st.session_state.chat_history = []
- 
+
     # Display chat history
     for entry in st.session_state.chat_history:
         if entry['role'] == 'user':
@@ -430,7 +420,7 @@ with tab2:
             <div class="chat-label ai">CineMatch AI</div>
             <div class="chat-bubble-ai">{entry['content']}</div>
             """, unsafe_allow_html=True)
- 
+
     # Input row
     col_inp, col_send = st.columns([4, 1])
     with col_inp:
@@ -442,7 +432,7 @@ with tab2:
         )
     with col_send:
         send_clicked = st.button("ASK AI →", key="ai_send")
- 
+
     # Starter prompts
     st.markdown("""
     <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
@@ -457,26 +447,26 @@ with tab2:
         </div>
     </div>
     """, unsafe_allow_html=True)
- 
+
     if send_clicked and user_prompt.strip():
         st.session_state.chat_history.append({'role': 'user', 'content': user_prompt})
- 
+
         # Build the movie titles list for context (first 100)
         movie_list_sample = ', '.join(movies['title'].values[:100].tolist())
- 
+
         system_prompt = f"""You are CineMatch, an expert AI movie recommendation assistant built into a movie recommender web app.
 The app has a database of 4,806 movies from the TMDB 5000 dataset.
 Some movies available include: {movie_list_sample} (and thousands more).
- 
+
 When a user asks for recommendations:
 1. Suggest 5 specific movie titles that fit their request
 2. For each movie give a 1-sentence reason why it fits
 3. Keep your tone friendly, enthusiastic, and concise
 4. Format your response clearly with numbered list
 5. End with one follow-up question to refine further
- 
+
 Do not use markdown headers or bold text. Keep the total response under 250 words."""
- 
+
         with st.spinner("AI is thinking..."):
             try:
                 ANTHROPIC_API_KEY = st.secrets.get("ANTHROPIC_API_KEY", "")
@@ -501,22 +491,22 @@ Do not use markdown headers or bold text. Keep the total response under 250 word
                 ai_reply = data['content'][0]['text'] if data.get('content') else "Sorry, I couldn't get a response. Please try again."
             except Exception as e:
                 ai_reply = f"AI service error: {str(e)}. Please check your API key in Streamlit secrets."
- 
+
         st.session_state.chat_history.append({'role': 'assistant', 'content': ai_reply})
         st.rerun()
- 
+
     if st.session_state.chat_history:
         if st.button("Clear Chat", key="clear_chat"):
             st.session_state.chat_history = []
             st.rerun()
- 
+
     st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 3 — COMPARE MOVIES
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
-    st.markdown('<div class="page">', unsafe_allow_html=True)
+    st.markdown('<div style="padding:36px 44px 48px;">', unsafe_allow_html=True)
     st.markdown("""
     <div class="sec-label">✦ Cosine Similarity Score</div>
     <div class="sec-title">COMPARE ANY TWO MOVIES</div>
@@ -526,7 +516,7 @@ with tab3:
         A score of 100% means identical content, 0% means completely unrelated.
     </div>
     """, unsafe_allow_html=True)
- 
+
     col_m1, col_vs, col_m2 = st.columns([5, 1, 5])
     with col_m1:
         st.markdown('<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;">First movie</div>', unsafe_allow_html=True)
@@ -537,22 +527,22 @@ with tab3:
         st.markdown('<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;">Second movie</div>', unsafe_allow_html=True)
         idx_b = min(10, len(movies)-1)
         movie_b = st.selectbox("Movie B", movies['title'].values, index=idx_b, key="compare_b", label_visibility="collapsed")
- 
+
     compare_clicked = st.button("COMPARE →", key="compare_btn")
- 
+
     if compare_clicked:
         with st.spinner("Calculating similarity..."):
             score = get_similarity_score(movie_a, movie_b)
- 
+
             mid_a = movies[movies['title'] == movie_a]['movie_id'].values
             mid_b = movies[movies['title'] == movie_b]['movie_id'].values
             det_a = fetch_details(mid_a[0]) if len(mid_a) > 0 else {}
             det_b = fetch_details(mid_b[0]) if len(mid_b) > 0 else {}
- 
+
         st.markdown('<div style="margin-top:28px;"></div>', unsafe_allow_html=True)
- 
+
         c1, c_score, c2 = st.columns([3, 2, 3])
- 
+
         with c1:
             st.markdown(f"""
             <div class="compare-card">
@@ -562,7 +552,7 @@ with tab3:
                 <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px;">{det_a.get('genres','')}</div>
             </div>
             """, unsafe_allow_html=True)
- 
+
         with c_score:
             verdict = "Very Similar" if score >= 25 else "Somewhat Similar" if score >= 10 else "Not Similar"
             color   = "#34d399" if score >= 25 else "#fbbf24" if score >= 10 else "#f87171"
@@ -579,7 +569,7 @@ with tab3:
                 </div>
             </div>
             """, unsafe_allow_html=True)
- 
+
         with c2:
             st.markdown(f"""
             <div class="compare-card">
@@ -589,14 +579,14 @@ with tab3:
                 <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px;">{det_b.get('genres','')}</div>
             </div>
             """, unsafe_allow_html=True)
- 
+
     st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 4 — DASHBOARD
 # ══════════════════════════════════════════════════════════════════════════════
 with tab4:
-    st.markdown('<div class="page">', unsafe_allow_html=True)
+    st.markdown('<div style="padding:36px 44px 48px;">', unsafe_allow_html=True)
     st.markdown("""
     <div class="sec-label">✦ Dataset Statistics</div>
     <div class="sec-title">PROJECT DASHBOARD</div>
@@ -605,7 +595,7 @@ with tab4:
         and the machine learning model powering CineMatch.
     </div>
     """, unsafe_allow_html=True)
- 
+
     # Stats row
     st.markdown("""
     <div class="stats-grid">
@@ -617,12 +607,12 @@ with tab4:
         <div class="stat-card"><div class="stat-val">CBF</div><div class="stat-lbl">Algorithm</div></div>
     </div>
     """, unsafe_allow_html=True)
- 
+
     # Charts using st.bar_chart
     try:
         import ast as ast_module
         import collections
- 
+
         @st.cache_data
         def compute_genre_counts():
             genre_counts = collections.Counter()
@@ -632,11 +622,11 @@ with tab4:
                     if len(w) > 6 and w[0].isupper():
                         genre_counts[w] += 1
             return genre_counts
- 
+
         st.markdown('<div class="ruled" style="margin-bottom:28px;"></div>', unsafe_allow_html=True)
- 
+
         col_left, col_right = st.columns(2)
- 
+
         with col_left:
             st.markdown('<div class="sec-label">▸ Dataset overview</div>', unsafe_allow_html=True)
             overview_data = pd.DataFrame({
@@ -644,7 +634,7 @@ with tab4:
                 'Count': [4803, 4806, 7, 5000]
             }).set_index('Category')
             st.bar_chart(overview_data, color='#e05c20')
- 
+
         with col_right:
             st.markdown('<div class="sec-label">▸ Technology breakdown</div>', unsafe_allow_html=True)
             tech_data = pd.DataFrame({
@@ -652,10 +642,10 @@ with tab4:
                 'Lines of Code': [8, 12, 5, 60, 6]
             }).set_index('Technology')
             st.bar_chart(tech_data, color='#e05c20')
- 
+
         st.markdown('<div style="margin-top:20px;"></div>', unsafe_allow_html=True)
         col_l2, col_r2 = st.columns(2)
- 
+
         with col_l2:
             st.markdown('<div class="sec-label">▸ Pipeline steps & complexity</div>', unsafe_allow_html=True)
             pipeline_data = pd.DataFrame({
@@ -663,7 +653,7 @@ with tab4:
                 'Complexity (relative)': [1, 1, 4, 2, 3, 5, 1]
             }).set_index('Step')
             st.bar_chart(pipeline_data, color='#e05c20')
- 
+
         with col_r2:
             st.markdown('<div class="sec-label">▸ Similarity matrix size</div>', unsafe_allow_html=True)
             matrix_data = pd.DataFrame({
@@ -671,17 +661,17 @@ with tab4:
                 'Value': [4806, 4806*4806//1000000, 5, 180]
             }).set_index('Metric')
             st.bar_chart(matrix_data, color='#e05c20')
- 
+
     except Exception as e:
         st.markdown(f'<div style="color:rgba(255,255,255,0.3);font-size:13px;">Charts loading... ({e})</div>', unsafe_allow_html=True)
- 
+
     st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 5 — HOW IT WORKS
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
-    st.markdown('<div class="page">', unsafe_allow_html=True)
+    st.markdown('<div style="padding:36px 44px 48px;">', unsafe_allow_html=True)
     st.markdown("""
     <div class="sec-label">✦ ML Pipeline</div>
     <div class="sec-title">HOW THE MODEL WORKS</div>
@@ -690,7 +680,7 @@ with tab5:
         from raw CSV data to live recommendations.
     </div>
     """, unsafe_allow_html=True)
- 
+
     st.markdown("""
     <div class="pipeline-grid">
         <div class="pipe-step">
@@ -755,14 +745,14 @@ with tab5:
         </div>
     </div>
     """, unsafe_allow_html=True)
- 
+
     # Technology stack
     st.markdown('<div style="margin-top:36px;"></div>', unsafe_allow_html=True)
     st.markdown("""
     <div class="ruled" style="margin-bottom:28px;"></div>
     <div class="sec-label">▸ Technology stack</div>
     """, unsafe_allow_html=True)
- 
+
     st.markdown("""
     <div style="background:#101015;border:1px solid rgba(255,255,255,0.055);border-radius:13px;padding:8px 20px;">
         <div class="tech-row-item"><div class="tech-name">Python 3</div><div class="tech-desc">Core language for all data processing and ML</div><span class="tech-tag tag-ml">ML</span></div>
@@ -779,9 +769,9 @@ with tab5:
         <div class="tech-row-item"><div class="tech-name">Streamlit Cloud</div><div class="tech-desc">Free live deployment — auto-redeploys every time you push to GitHub</div><span class="tech-tag tag-deploy">Deploy</span></div>
     </div>
     """, unsafe_allow_html=True)
- 
+
     st.markdown('</div>', unsafe_allow_html=True)
- 
+
 # ── FOOTER ─────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="foot">
@@ -792,17 +782,3 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
