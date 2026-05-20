@@ -89,26 +89,26 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif !important; }
 
 /* ── PADDING FIX ── */
 .block-container {
-    padding-top: 0 !important;
+    padding-top: 2rem !important;
     padding-bottom: 2rem !important;
     padding-left: 2.5rem !important;
     padding-right: 2.5rem !important;
     max-width: 100% !important;
 }
-.stMainBlockContainer {
-    padding-top: 0 !important;
-    padding-left: 2.5rem !important;
-    padding-right: 2.5rem !important;
-    max-width: 100% !important;
-}
-[data-testid="stMainBlockContainer"] {
-    padding-top: 0 !important;
-    padding-left: 2.5rem !important;
-    padding-right: 2.5rem !important;
-    max-width: 100% !important;
-}
-[data-testid="stVerticalBlock"] { gap: 0 !important; }
 
+.stMainBlockContainer {
+    padding-top: 2rem !important;
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+    max-width: 100% !important;
+}
+
+[data-testid="stMainBlockContainer"] {
+    padding-top: 2rem !important;
+    padding-left: 2.5rem !important;
+    padding-right: 2.5rem !important;
+    max-width: 100% !important;
+}
 /* ── NAVBAR ── */
 .navbar {
     background: #0f0f14;
@@ -116,6 +116,9 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif !important; }
     padding: 15px 44px;
     display: flex;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
 }
 .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:#eeebe6; }
 .nav-logo span { color:#e05c20; }
@@ -125,7 +128,15 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif !important; }
     text-transform:uppercase; padding:3px 9px; border-radius:20px;
 }
 .nav-info { margin-left:auto; font-size:11px; color:rgba(255,255,255,0.28); }
+/* ── CONTENT SPACING BELOW NAVBAR ── */
+.main .block-container {
+    margin-top: 20px !important;
+}
 
+/* TAB CONTENT SPACING */
+div.stTabs [data-baseweb="tab-panel"] {
+    padding-top: 25px !important;
+}
 /* ── TABS ── */
 div.stTabs [data-baseweb="tab-list"] {
     background: #0f0f14 !important;
@@ -283,10 +294,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── TABS ───────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "🎬 Recommend", "🤖 AI Chat", "⚖️ Compare Movies", "📊 Dashboard", "🧠 How It Works"
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🎬 Recommend", "⚖️ Compare Movies", "📊 Dashboard", "🧠 How It Works"
 ])
-
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 1 — RECOMMEND
 # ══════════════════════════════════════════════════════════════════════════════
@@ -358,125 +368,11 @@ with tab1:
 
         st.markdown('', unsafe_allow_html=True)
 
+
 # ══════════════════════════════════════════════════════════════════════════════
-#  TAB 2 — AI CHAT
+#  TAB 2 — COMPARE
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    with st.container():
-        st.markdown('', unsafe_allow_html=True)
-        st.markdown("""
-        <div class="sec-label">✦ Powered by Gemini AI</div>
-        <div class="sec-title">AI MOVIE ASSISTANT</div>
-        <div class="sec-desc">
-            Describe your mood, favourite genre, or a feeling — the AI will suggest
-            movies tailored to you. Uses the Anthropic Claude API directly inside the app.
-        </div>
-        """, unsafe_allow_html=True)
-
-        if 'chat_history' not in st.session_state:
-            st.session_state.chat_history = []
-
-        # Show chat history
-        for entry in st.session_state.chat_history:
-            if entry['role'] == 'user':
-                st.markdown(f"""
-                <div class="chat-lbl chat-lbl-user">You</div>
-                <div style="display:flex;justify-content:flex-end;">
-                    <div class="chat-user">{entry['content']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="chat-lbl chat-lbl-ai">CineMatch AI</div>
-                <div class="chat-ai">{entry['content']}</div>
-                """, unsafe_allow_html=True)
-
-        # Input
-        col_inp, col_send = st.columns([4, 1])
-        with col_inp:
-            user_prompt = st.text_input(
-                "Ask AI",
-                placeholder='e.g. "I want something dark and psychological like Inception"',
-                label_visibility="collapsed",
-                key="ai_input"
-            )
-        with col_send:
-            send_clicked = st.button("ASK AI →", key="ai_send")
-
-        # Tips
-        st.markdown("""
-        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
-            <div style="background:#101015;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);">💡 "I'm sad, want something uplifting"</div>
-            <div style="background:#101015;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);">💡 "Best sci-fi films about AI"</div>
-            <div style="background:#101015;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);">💡 "Movies like The Godfather"</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if send_clicked and user_prompt.strip():
-            st.session_state.chat_history.append({'role': 'user', 'content': user_prompt})
-
-            movie_sample = ', '.join(movies['title'].values[:80].tolist())
-            system_prompt = f"""You are CineMatch, an expert AI movie recommendation assistant.
-The app has 4,806 movies from the TMDB 5000 dataset including: {movie_sample} and thousands more.
-When asked for recommendations:
-1. Suggest 5 specific movie titles that fit the request
-2. Give a 1-sentence reason for each
-3. Keep tone friendly and concise
-4. Use a numbered list
-5. End with one follow-up question
-Keep response under 250 words. Do not use markdown bold or headers."""
-
-            with st.spinner("AI is thinking..."):
-                try:
-                    # Get Gemini API key from secrets
-                    api_key = st.secrets["GEMINI_API_KEY"]
-
-                    # Combine system prompt + user message for Gemini
-                    full_prompt = system_prompt + "\n\nUser: " + user_prompt
-
-                    resp = requests.post(
-                        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
-                        headers={"Content-Type": "application/json"},
-                        json={
-                            "contents": [{
-                                "parts": [{"text": full_prompt}]
-                            }],
-                            "generationConfig": {
-                                "maxOutputTokens": 1000,
-                                "temperature": 0.7
-                            }
-                        },
-                        timeout=30
-                    )
-                    data = resp.json()
-                    if data.get('candidates'):
-                        ai_reply = data['candidates'][0]['content']['parts'][0]['text']
-                    elif data.get('error'):
-                        ai_reply = f"API error: {data['error'].get('message', 'Unknown error')}"
-                    else:
-                        ai_reply = "No response received. Please try again."
-
-                except KeyError:
-                    ai_reply = "API key not found. Please add GEMINI_API_KEY to your Streamlit secrets."
-                except requests.exceptions.Timeout:
-                    ai_reply = "Request timed out. Please try again."
-                except Exception as e:
-                    ai_reply = f"Error: {str(e)}"
-
-            st.session_state.chat_history.append({'role': 'assistant', 'content': ai_reply})
-            st.rerun()
-
-        if st.session_state.chat_history:
-            if st.button("Clear Chat", key="clear_chat"):
-                st.session_state.chat_history = []
-                st.rerun()
-
-        st.markdown('', unsafe_allow_html=True)
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  TAB 3 — COMPARE
-# ══════════════════════════════════════════════════════════════════════════════
-with tab3:
     with st.container():
         st.markdown('', unsafe_allow_html=True)
         st.markdown("""
@@ -553,9 +449,9 @@ with tab3:
         st.markdown('', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  TAB 4 — DASHBOARD
+#  TAB 3 — DASHBOARD
 # ══════════════════════════════════════════════════════════════════════════════
-with tab4:
+with tab3:
     with st.container():
         st.markdown('', unsafe_allow_html=True)
         st.markdown("""
@@ -607,9 +503,9 @@ with tab4:
         st.markdown('', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  TAB 5 — HOW IT WORKS
+#  TAB 4 — HOW IT WORKS
 # ══════════════════════════════════════════════════════════════════════════════
-with tab5:
+with tab4:
     with st.container():
         st.markdown('', unsafe_allow_html=True)
         st.markdown("""
@@ -654,7 +550,7 @@ st.markdown("""
 <div class="foot">
     <div class="foot-logo">CINE<span>MATCH</span></div>
     <div class="foot-right">
-        Python · Streamlit · Scikit-learn · TMDB API · Claude AI
+        Python · Streamlit · Scikit-learn · TMDB API    
         &nbsp;|&nbsp; Data Encryption &amp; Security — Final Year Project
     </div>
 </div>
