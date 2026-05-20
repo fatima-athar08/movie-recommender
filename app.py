@@ -365,7 +365,7 @@ with tab2:
     with st.container():
         st.markdown('', unsafe_allow_html=True)
         st.markdown("""
-        <div class="sec-label">✦ Powered by Claude AI</div>
+        <div class="sec-label">✦ Powered by Gemini AI</div>
         <div class="sec-title">AI MOVIE ASSISTANT</div>
         <div class="sec-desc">
             Describe your mood, favourite genre, or a feeling — the AI will suggest
@@ -428,34 +428,36 @@ Keep response under 250 words. Do not use markdown bold or headers."""
 
             with st.spinner("AI is thinking..."):
                 try:
-                    # Get API key from secrets
-                    api_key = st.secrets["ANTHROPIC_API_KEY"]
+                    # Get Gemini API key from secrets
+                    api_key = st.secrets["GEMINI_API_KEY"]
+
+                    # Combine system prompt + user message for Gemini
+                    full_prompt = system_prompt + "\n\nUser: " + user_prompt
 
                     resp = requests.post(
-                        "https://api.anthropic.com/v1/messages",
-                        headers={
-                            "Content-Type":      "application/json",
-                            "x-api-key":         api_key,
-                            "anthropic-version": "2023-06-01"
-                        },
+                        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
+                        headers={"Content-Type": "application/json"},
                         json={
-                            "model":      "claude-sonnet-4-5",
-                            "max_tokens": 1000,
-                            "system":     system_prompt,
-                            "messages":   [{"role": "user", "content": user_prompt}]
+                            "contents": [{
+                                "parts": [{"text": full_prompt}]
+                            }],
+                            "generationConfig": {
+                                "maxOutputTokens": 1000,
+                                "temperature": 0.7
+                            }
                         },
                         timeout=30
                     )
                     data = resp.json()
-                    if data.get('content'):
-                        ai_reply = data['content'][0]['text']
+                    if data.get('candidates'):
+                        ai_reply = data['candidates'][0]['content']['parts'][0]['text']
                     elif data.get('error'):
                         ai_reply = f"API error: {data['error'].get('message', 'Unknown error')}"
                     else:
                         ai_reply = "No response received. Please try again."
 
                 except KeyError:
-                    ai_reply = "API key not found. Please add ANTHROPIC_API_KEY to your Streamlit secrets."
+                    ai_reply = "API key not found. Please add GEMINI_API_KEY to your Streamlit secrets."
                 except requests.exceptions.Timeout:
                     ai_reply = "Request timed out. Please try again."
                 except Exception as e:
@@ -657,3 +659,4 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
